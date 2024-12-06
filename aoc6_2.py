@@ -36,6 +36,7 @@ while True:
     mod = modifications[dir_idx]
     t_y, t_x = apply_mod((y, x), mod)
     if range_violated(t_y, t_x):
+        visited.add((y, x, dir_idx))
         break
     elif puzzle[t_y][t_x] == "#":
         dir_idx += 1
