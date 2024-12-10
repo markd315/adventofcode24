@@ -22,7 +22,19 @@ for idy, line in enumerate(lines):
     x_len = len(row)
     puzzle.append(row)
 y_len = len(puzzle)
-modifications = [(1,0),(0,-1),(-1,0),(0,1),]# dlur
+
+class T(tuple):
+    def __add__(self, other):
+        return T(x + y for x, y in zip(self, other))
+
+    def rot(self):
+        x, y = self
+        return T((y, -x))
+NORTH = T((-1, 0))
+EAST = NORTH.rot()
+SOUTH = EAST.rot()
+WEST = SOUTH.rot()
+modifications = [SOUTH,WEST,NORTH,EAST]
 
 def apply_mod(tuple, mod):
     return tuple[0] + mod[0], tuple[1] + mod[1]
