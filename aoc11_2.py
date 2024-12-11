@@ -1,42 +1,41 @@
-import functools
-from collections import defaultdict
+from functools import cache, lru_cache
+import sys
 
-def comparator(inp, two):
-    if inp in map.keys():
-        if two in map[inp]:
-            return -1
-    if two in map.keys():
-        if inp in map[two]:
-            return 1
-    return 0
+sys.setrecursionlimit(10**6)
+
+@cache
+def stone(elem, steps):
+    strelem = str(elem)
+    if steps == 0:
+        return 1
+    elif elem == 0:
+        ret=stone(1, steps - 1)
+    elif len(strelem) % 2 == 0:
+        half = int(len(strelem) / 2)
+        left = int(strelem[0:half])
+        right = int(strelem[half:])
+        ret=stone(left, steps - 1) + stone(right, steps -1)
+    else:
+        ret = stone(elem * 2024, steps -1)
+    return ret
+
 
 # initialize
-a = []
+in_list = []
 b = []
 #read
 with open("input/11.txt") as f:
-    lines = f.readlines()
-#parse (two stage)
-stage_two_parse = False
-in_list = []
-map = defaultdict(list)
-for line in lines:
-    if line.strip() == "":
-        stage_two_parse = True
-        continue
-    if not stage_two_parse:
-        x = line.split("|")
-        a_x = int(x[0])
-        b_x = int(x[1].strip())
-        map[a_x].append(b_x)
-    else:
-        nums = []
-        for n in line.strip().split(","):
-            nums.append(int(n))
-        in_list.append(nums)
+    lines = f.readline()
+for n in lines.strip().split(" "):
+    in_list.append(int(n))
 #process
 #answer
 ans = 0
-sorted(in_list, key=functools.cmp_to_key(comparator), reverse=True)
-for book in in_list:
-    
+prev = len(in_list)
+sum = 0
+for st in in_list:
+    sum += stone(st, 75)
+    print(sum)
+    print(str(st) + "STONE")
+print(sum)
+

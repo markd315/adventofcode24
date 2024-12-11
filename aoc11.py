@@ -1,42 +1,37 @@
 import functools
 from collections import defaultdict
 
-def comparator(inp, two):
-    if inp in map.keys():
-        if two in map[inp]:
-            return -1
-    if two in map.keys():
-        if inp in map[two]:
-            return 1
-    return 0
+def blink(param):
+    out = []
+    for elem in param:
+        strelem = str(elem)
+        if elem == 0:
+            out.append(1)
+        elif len(strelem) % 2 == 0:
+            half = int(len(strelem)/2)
+            out.append(int(strelem[0:half]))
+            out.append(int(strelem[half:]))
+        else:
+            out.append(elem * 2024)
+    return out
 
 # initialize
-a = []
+in_list = []
 b = []
 #read
 with open("input/11.txt") as f:
-    lines = f.readlines()
-#parse (two stage)
-stage_two_parse = False
-in_list = []
-map = defaultdict(list)
-for line in lines:
-    if line.strip() == "":
-        stage_two_parse = True
-        continue
-    if not stage_two_parse:
-        x = line.split("|")
-        a_x = int(x[0])
-        b_x = int(x[1].strip())
-        map[a_x].append(b_x)
-    else:
-        nums = []
-        for n in line.strip().split(","):
-            nums.append(int(n))
-        in_list.append(nums)
+    lines = f.readline()
+for n in lines.strip().split(" "):
+    in_list.append(int(n))
 #process
 #answer
 ans = 0
-sorted(in_list, key=functools.cmp_to_key(comparator), reverse=True)
-for book in in_list:
-    
+#out = blink(in_list)
+#print(out)
+prev = len(in_list)
+for i in range(0,6):
+    in_list = blink(in_list)
+    print("blink " + str(i) + "   " + str(len(in_list)) + " div" + str(len(in_list) / prev))
+    prev = len(in_list)
+    print(in_list)
+print(len(in_list))
