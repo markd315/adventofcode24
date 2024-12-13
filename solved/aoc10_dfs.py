@@ -6,7 +6,7 @@ from email.policy import default
 a = []
 b = []
 #read
-with open("input/10.txt") as f:
+with open("../input/10.txt") as f:
     lines = f.readlines()
 #parse
 puzzle = []
@@ -22,19 +22,7 @@ for idy, line in enumerate(lines):
     x_len = len(row)
     puzzle.append(row)
 y_len = len(puzzle)
-
-class T(tuple):
-    def __add__(self, other):
-        return T(x + y for x, y in zip(self, other))
-
-    def rot(self):
-        x, y = self
-        return T((y, -x))
-NORTH = T((-1, 0))
-EAST = NORTH.rot()
-SOUTH = EAST.rot()
-WEST = SOUTH.rot()
-modifications = [SOUTH,WEST,NORTH,EAST]
+modifications = [(1,0),(0,-1),(-1,0),(0,1),]# dlur
 
 def apply_mod(tuple, mod):
     return tuple[0] + mod[0], tuple[1] + mod[1]
@@ -42,19 +30,18 @@ def apply_mod(tuple, mod):
 def range_violated(y, x):
     return x >= x_len or y >= y_len or x < 0 or y < 0
 
-def dfs(origin, modifications, count, path):
+def dfs(origin, modifications, count):
     trails = 0
-    for idx, mod in enumerate(modifications):
+    for mod in modifications:
         y, x = (origin[0] + mod[0], origin[1] + mod[1])
         if not range_violated(y, x):
             char = puzzle[y][x]
             if char != "." and int(char) == count:
-                if count == 9:# and (y,x) not in paths:
-                    #paths.add(path)
+                if count == 9 and (y,x) not in found:
+                    found.add((y,x))
                     trails += 1
                 else:
-                    path.append(mod)
-                    trails += dfs((y,x), modifications, count + 1, path)
+                    trails += dfs((y,x), modifications, count + 1)
     return trails
 
 moves = 0
@@ -63,8 +50,8 @@ y, x = y_s, x_s
 visited = set()
 ans = 0
 for origin in origins:
-    paths = set()
-    score = dfs(origin, modifications, 1, [])
+    found = set()
+    score = dfs(origin, modifications, 1)
     #print(score)
     ans += score
 print(ans)

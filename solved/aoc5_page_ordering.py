@@ -1,21 +1,15 @@
-import functools
 from collections import defaultdict
 
 
-def helper(inp, two):
-    if inp in map.keys():
-        if two in map[inp]:
-            return -1
-    if two in map.keys():
-        if inp in map[two]:
-            return 1
-    return 0
+def helper(inp):
+    print(inp)
+    return inp
 
 # initialize
 a = []
 b = []
 #read
-with open("input/5.txt") as f:
+with open("../input/5.txt") as f:
     lines = f.readlines()
 #parse
 in_pages = False
@@ -49,8 +43,7 @@ for book in pages:
                         break
             if not valid:
                 break
-    if not valid:
-        sorted_book = sorted(book, key=functools.cmp_to_key(helper), reverse=True)
-        middle = sorted_book[int(len(book) / 2)]
+    if valid:
+        middle = book[int(len(book) / 2)]
         ans += middle
 print(ans)

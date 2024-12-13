@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 
 #read
-with open("input/12.txt") as f:
+with open("../input/12.txt") as f:
     lines = f.readlines()
 in_list = []
 map = defaultdict(list)

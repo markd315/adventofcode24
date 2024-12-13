@@ -48,7 +48,7 @@ def calcAntinodes(list, inputantis):
 
 
 # read
-with open("input/8.txt") as f:
+with open("../input/8.txt") as f:
     lines = f.readlines()
 # parse (two stage)
 chars = defaultdict(list)

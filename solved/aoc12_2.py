@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 from itertools import combinations
 
 #read
-with open("input/12.txt") as f:
+with open("../input/12.txt") as f:
     lines = f.readlines()
 in_list = []
 map = defaultdict(list)

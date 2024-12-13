@@ -2,7 +2,7 @@
 
 from collections import  deque
 
-with open("input/9.txt") as f:
+with open("../input/9.txt") as f:
     lines = f.readline()
 unzipped = []
 datum = 0

@@ -5,16 +5,18 @@ from copy import copy
 
 def evaluate(equals, in_list):
     if len(in_list) == 2:
-        return in_list[0] * in_list[1] == equals or in_list[0] + in_list[1] == equals
+        return in_list[0] * in_list[1] == equals or in_list[0] + in_list[1] == equals  or str(in_list[0]) + str(in_list[1]) == str(equals)
     mult = copy(in_list)
+    cat = copy(in_list)
     mult[1] *= mult[0]
+    cat[1] = int(str(cat[0]) + str(cat[1]))
     in_list[1] += in_list[0]
-    return evaluate(equals, mult[1:]) or evaluate(equals, in_list[1:])
+    return evaluate(equals, mult[1:]) or evaluate(equals, in_list[1:]) or evaluate(equals, cat[1:])
 
 # initialize
 in_list = []
 # read
-with open("input/7.txt") as f:
+with open("../input/7.txt") as f:
     lines = f.readlines()
 for line in lines:
     nums = []

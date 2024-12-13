@@ -5,7 +5,7 @@ from email.policy import default
 
 # initialize
 #read
-with open("input/6.txt") as f:
+with open("../input/6.txt") as f:
     lines = f.readlines()
 #parse
 puzzle = []

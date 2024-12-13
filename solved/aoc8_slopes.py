@@ -40,7 +40,7 @@ def calcAntinodes(list, inputantis):
     return antis.union(calcAntinodes(list[1:], inputantis))
 
 # read
-with open("input/8.txt") as f:
+with open("../input/8.txt") as f:
     lines = f.readlines()
 # parse (two stage)
 chars = defaultdict(list)

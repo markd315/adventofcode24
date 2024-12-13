@@ -6,7 +6,7 @@ from email.policy import default
 a = []
 b = []
 #read
-with open("input/3.txt") as f:
+with open("../input/3.txt") as f:
     lines = f.readlines()
 #parse
 bigstr = ""

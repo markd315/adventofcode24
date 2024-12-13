@@ -37,7 +37,7 @@ def isSafe(in_list):
 # initialize
 reports = []
 #read
-with open("input/2.txt") as f:
+with open("../input/2.txt") as f:
     lines = f.readlines()
 #parse
 for line in lines:

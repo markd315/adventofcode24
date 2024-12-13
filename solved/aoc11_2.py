@@ -24,7 +24,7 @@ def stone(elem, steps):
 in_list = []
 b = []
 #read
-with open("input/11.txt") as f:
+with open("../input/11.txt") as f:
     lines = f.readline()
 for n in lines.strip().split(" "):
     in_list.append(int(n))
