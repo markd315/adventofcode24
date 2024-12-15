@@ -95,7 +95,7 @@ def rec_boxes(force, boxes, loc):
 
 ans = 0
 for i, instr in enumerate(b):
-    if i == 22:
+    if i == 94:
         print("break") # todo
         print("{(5, 10, '['), (5, 11, ']'), (6, 10, '['), (6, 11, ']')}")
     mod = mods[instr]
@@ -127,8 +127,11 @@ for i, instr in enumerate(b):
                     for box in new_boxes:
                         if box[0] == yw and box[1] == xw:
                             found = True
+                            #a[yw][xw] = box[2]
                     if not found:
                         a[yw][xw] = "."
+                r_y, r_x = T((r_y, r_x)) + mod
+                print(r_y)
             else:
                 r_y, r_x = y, x
                 curr_char = a[r_y][r_x]
