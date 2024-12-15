@@ -63,21 +63,36 @@ def range_violated(y, x):
 #answer
 
 def rec_boxes(force, boxes, loc):
+    yw, xw = loc
+    if a[yw][xw] in "[]":
+        boxes.add((yw, xw, a[yw][xw]))
+    if a[yw][xw] == "[":
+        boxes.add((yw, xw + 1, "]"))
+    if a[yw][xw] == "]":
+        boxes.add((yw, xw - 1, "["))
     newloc = force + loc
     yw, xw = loc
     if a[yw][xw] == "#":
         return True, boxes
     if a[yw][xw] == ".":
         return False, boxes
-    boxes.add((yw, xw, a[yw][xw]))
+    if a[yw][xw] in "[]":
+        boxes.add((yw, xw, a[yw][xw]))
     if a[yw][xw] == "[":
         boxes.add((yw, xw + 1, "]"))
-        return rec_boxes(force, boxes, newloc)
+        rwall, lboxes = False, set()
+        lwall, rboxes = rec_boxes(force, boxes, newloc)
+        if mod in [NORTH, SOUTH]:
+            rwall, lboxes = rec_boxes(force, boxes, newloc + mods[">"])
+        return lwall or rwall, rboxes.union(lboxes)
     if a[yw][xw] == "]":
-        boxes.add((yw, xw - 1, "]"))
-        return rec_boxes(force, boxes, newloc)
+        boxes.add((yw, xw - 1, "["))
+        lwall, rboxes = False, set()
+        if mod in [NORTH, SOUTH]:
+            lwall, rboxes = rec_boxes(force, boxes, newloc + mods["<"])
+        rwall, lboxes = rec_boxes(force, boxes, newloc)
+        return lwall or rwall, rboxes.union(lboxes)
 
-forced_boxes = set()
 ans = 0
 for instr in b:
     mod = mods[instr]
@@ -89,17 +104,33 @@ for instr in b:
     elif a[y][x] == "#":
         continue
     else: # box
-        yw, xw = T((y, x)) + mod
+        yw, xw = T((r_y, r_x)) + mod
         loc = T((yw, xw))
         wall, boxes = rec_boxes(mod, set(), loc)
         if wall:
             continue
         else: # pushed into a blank space. robot moves up one. blank space is O
-            for box in list(boxes):
-                yw, xw = T((y, x)) + mod
+            new_boxes = set()
+            for box in boxes:
+                yw, xw = T((box[0], box[1])) + mod
                 a[yw][xw] = box[2] # char from tuple
-            r_y, r_x = y, x
-            a[r_y][r_x] = "."
+                box = T((yw, xw))
+                new_boxes.add(box)
+            # blank out space below boxes
+            if mod in [NORTH, SOUTH]:
+                for box in new_boxes:
+                    yw, xw = T((box[0], box[1])) + mod.rot().rot()  # subtract
+                    found = False
+                    for box in new_boxes:
+                        if box[0] == yw and box[1] == xw:
+                            found = True
+                    if not found:
+                        a[yw][xw] = "."
+            else:
+                r_y, r_x = y, x
+                curr_char = a[r_y][r_x]
+                a[r_y][r_x] = "."
+            # when pushing vertical also clear other pair
 
 
 for idy, line in enumerate(a):
