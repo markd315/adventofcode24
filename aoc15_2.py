@@ -94,7 +94,10 @@ def rec_boxes(force, boxes, loc):
         return lwall or rwall, rboxes.union(lboxes)
 
 ans = 0
-for instr in b:
+for i, instr in enumerate(b):
+    if i == 22:
+        print("break") # todo
+        print("{(5, 10, '['), (5, 11, ']'), (6, 10, '['), (6, 11, ']')}")
     mod = mods[instr]
     y, x = mod + T((r_y, r_x))
     if range_violated(y, x):
