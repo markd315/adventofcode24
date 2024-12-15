@@ -1,6 +1,15 @@
 import functools
 from collections import defaultdict
 
+def comparator(inp, two):
+    if inp in map.keys():
+        if two in map[inp]:
+            return -1
+    if two in map.keys():
+        if inp in map[two]:
+            return 1
+    return 0
+
 # initialize
 a = []
 b = []
@@ -19,16 +28,11 @@ for idy, line in enumerate(lines):
         tmp = []
         for idx, char in enumerate(line.strip()):
             if char == "@":
-                r_x = idx * 2
+                r_x = idx
                 r_y = idy
                 tmp.append(".")
-                tmp.append(".")
-            elif char == "O":
-                tmp.append("[")
-                tmp.append("]")
-            else:
-                tmp.append(char)
-                tmp.append(char)
+                continue
+            tmp.append(char)
         a.append(tmp)
         x_len = len(tmp)
         y_len = len(a)
@@ -62,22 +66,7 @@ def range_violated(y, x):
     return x >= x_len or y >= y_len or x < 0 or y < 0
 #answer
 
-def rec_boxes(force, boxes, loc):
-    newloc = force + loc
-    yw, xw = loc
-    if a[yw][xw] == "#":
-        return True, boxes
-    if a[yw][xw] == ".":
-        return False, boxes
-    boxes.add((yw, xw, a[yw][xw]))
-    if a[yw][xw] == "[":
-        boxes.add((yw, xw + 1, "]"))
-        return rec_boxes(force, boxes, newloc)
-    if a[yw][xw] == "]":
-        boxes.add((yw, xw - 1, "]"))
-        return rec_boxes(force, boxes, newloc)
 
-forced_boxes = set()
 ans = 0
 for instr in b:
     mod = mods[instr]
@@ -90,20 +79,22 @@ for instr in b:
         continue
     else: # box
         yw, xw = T((y, x)) + mod
-        loc = T((yw, xw))
-        wall, boxes = rec_boxes(mod, set(), loc)
-        if wall:
+        stopped = False
+        while a[yw][xw] != ".": # box or wall
+            if a[yw][xw] == "#": # wall
+                stopped = True
+                break
+            yw, xw = T((yw, xw)) + mod
+        if stopped:
             continue
         else: # pushed into a blank space. robot moves up one. blank space is O
-            for box in list(boxes):
-                yw, xw = T((y, x)) + mod
-                a[yw][xw] = box[2] # char from tuple
+            a[yw][xw] = "O"
             r_y, r_x = y, x
             a[r_y][r_x] = "."
 
 
 for idy, line in enumerate(a):
     for idx, char in enumerate(line):
-        if char == "[":
+        if char == "O":
             ans += 100*idy + idx
 print(ans)
