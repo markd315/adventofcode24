@@ -14,7 +14,7 @@ def comparator(inp, two):
 a = []
 b = []
 #read
-with open("input/15.txt") as f:
+with open("../input/15.txt") as f:
     lines = f.readlines()
 #parse (two stage)
 stage_two_parse = False
