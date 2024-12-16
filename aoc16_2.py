@@ -1,104 +1,191 @@
-import collections
-from collections import defaultdict
-from copy import copy
+from __future__ import annotations
+
+from copy import deepcopy
+from queue import PriorityQueue
+
+TURN_DIRECTIONS = {
+    (0, -1): [(1, 0), (-1, 0)],
+    (0, 1): [(1, 0), (-1, 0)],
+    (-1, 0): [(0, 1), (0, -1)],
+    (1, 0): [(0, 1), (0, -1)],
+}
 
 
-class T(tuple):
-    def __add__(self, other):
-        return T(x + y for x, y in zip(self, other))
+def run(part: int, debug: bool = False):
+    file_name = f"input/16.txt"
 
-    def rot(self):
-        x, y = self
-        return T((y, -x))
+    with open(file_name, encoding="utf-8") as file:
+        file_data = file.readlines()
+
+    data = [x.strip() for x in file_data]
+    part_function = part1 if part == 1 else part2
+
+    return part_function(data=data, debug=debug)
 
 
-NORTH = T((-1, 0))
-EAST = NORTH.rot()
-SOUTH = EAST.rot()
-WEST = SOUTH.rot()
-modifications = [SOUTH,WEST,NORTH,EAST]
+class Box:
+    def __init__(
+        self,
+        parent: Box | None = None,
+        position: tuple[int, int] = (-1, -1),
+        direction: tuple[int, int] = (0, 0),
+    ) -> None:
+        self.parent = parent
+        self.position = position
+        self.direction = direction
 
-with open("input/16.txt") as f:
-    lines = f.readlines()
-# parse (two stage)
-in_list = []
-r_y, r_x = 0, 0
-scores = defaultdict(lambda: float('inf')) # (y, x) -> int score
-paths = defaultdict(list) # dict: T(y, x) -> [{},{}]
-dir = {}
-for idy, line in enumerate(lines):
-    vals = []
-    for idx, num in enumerate(line.strip()):
-        if num == "S":
-            r_y = idy
-            r_x = idx
-        if num == "E":
-            e_y = idy
-            e_x = idx
-        vals.append(num)
-    in_list.append(vals)
-# process
-# answer
+    def __eq__(self, other):
+        return self.position == other.position
 
-ans = 0
+    def __gt__(self, other):
+        return self.position < other.position
 
-scores[T((r_y, r_x, EAST))] = 0
-paths[T((r_y, r_x))] = [{T((r_y, r_x))}] #todo array of set for p2
-frz = frozenset({T((r_y, r_x))})
-facing = {frz: EAST} # dict: path -> dir
-queue = collections.deque()
-queue.append(T((r_y, r_x)))
-best_paths = []
-visited = set()
-while len(queue) > 0:
-    elem = queue.popleft()
-    for path in paths[elem]:
-        t_dir = facing[frozenset(path)]
-        for dirs in [t_dir, t_dir.rot(), t_dir.rot().rot().rot()]:
-            old_score = scores[(elem[0], elem[1], t_dir)]
-            new_loc = elem + dirs
-            y, x = new_loc[0], new_loc[1]
-            #if (y, x, dirs) not in visited:
-            #    visited.add((y, x, dirs))
-            #else:
-            #    continue
-            if in_list[y][x] == "#":
+    def __hash__(self):
+        return hash((self.position[0], self.position[1], self.direction))
+
+    def __repr__(self):
+        return f"({self.position[0]},{self.position[1]}) {self.direction}"
+
+
+def run_maze(maze, start, end) -> tuple[list, int, int]:
+    best_cost = 9999999999
+    best_path: list[tuple[int, int]] = []
+
+    start_node = Box(None, start, direction=(1, 0))
+    end_node = Box(None, end)
+
+    todo: PriorityQueue[tuple[int, Box]] = PriorityQueue()
+    visited: dict[Box, int] = {}
+    good_spots: set[tuple[int, int]] = set()
+
+    todo.put((0, start_node))
+
+    while not todo.empty():
+        current_cost, current_node = todo.get()
+        assert isinstance(current_node, Box)
+
+        if current_node in visited and visited[current_node] < current_cost:
+            continue
+
+        visited[current_node] = current_cost
+
+        # Found the end
+        if current_node == end_node and current_cost <= best_cost:
+            path = []
+            current: Box | None = current_node
+            while current is not None:
+                path.append(current.position)
+                current = current.parent
+
+            best_path = deepcopy(path)
+            if best_cost != current_cost:
+                good_spots = set()
+                best_cost = current_cost
+
+            good_spots.update(path)
+
+            continue
+
+        direction = current_node.direction
+        new_node = (
+            current_node.position[0] + direction[0],
+            current_node.position[1] + direction[1],
+        )
+        if not is_inbounds(maze, new_node):
+            continue
+        if maze[new_node[1]][new_node[0]] != 0:
+            new_box = Box(current_node, new_node, direction)
+            todo.put((current_cost + 1, new_box))
+
+        for direction in TURN_DIRECTIONS[current_node.direction]:
+            new_node = (
+                current_node.position[0] + direction[0],
+                current_node.position[1] + direction[1],
+            )
+
+            if not is_inbounds(maze, new_node):
                 continue
-            score = old_score
-            score += 1 if dirs == t_dir else 1001
-            if score >= scores[(y, x, dirs)]:
-                continue
-            if frz in paths[new_loc]:  # short circuit cycles
-                continue
-            curr_path = copy(path)
-            curr_path.add(new_loc)
-            frz = frozenset(curr_path)
-            if score <= scores[(y, x, t_dir)]:
-                if y == 7 and x == 15: # todo
-                    # junction is wrong because to GET to 7,15 is cheaper from the left but to PROGRESS from there is same
-                    print("break")
-                    # [score for score in scores if score[1] == 15 and score[0] == 7]
-                    # scores[[score for score in scores if score[1] == 15 and score[0] == 7][0]]
-                if score < scores[(y,x, dirs)]:
-                    paths[new_loc] = [curr_path]
-                    scores[(y, x, dirs)] = score
-                else:
-                    paths[new_loc].append(curr_path)
-                queue.append(new_loc)
-                facing[frz] = dirs
 
-ans = scores[T((e_y, e_x))]
-total_set = set()
-for path in paths[T((e_y, e_x))]:
-    for elem in path:
-        total_set.add(elem)
-print(len(total_set))
-for y, line in enumerate(in_list):
-    out = ""
-    for x, char in enumerate(line):
-        if T((y, x)) in total_set:
-            out += "0"
-        else:
-            out += char
-    print(out)
-#print(ans)
+            # Make sure it is not a wall
+            if maze[new_node[1]][new_node[0]] == 0:
+                continue
+
+            new_box = Box(current_node, new_node, direction)
+            todo.put((current_cost + 1001, new_box))
+
+    return best_path[::-1], best_cost, len(good_spots)
+
+
+def part1(data: list[str], debug: bool = False) -> int:
+    results = 0
+
+    show(data, debug=debug)
+
+    start = find_in_grid(data, "S")
+    end = find_in_grid(data, "E")
+    grid = grid_to_int(data)
+
+    path, results, _ = run_maze(grid, start, end)
+
+    if debug:
+        print(sorted(list(path)))
+
+    return results
+
+
+def part2(data: list[str], debug: bool = False) -> int:
+    show(data, debug=debug)
+
+    start = find_in_grid(data, "S")
+    end = find_in_grid(data, "E")
+    grid = grid_to_int(data)
+
+    _, _, good_spots = run_maze(grid, start, end)
+
+    return good_spots
+
+
+def show(grid: list[str], debug: bool = False) -> None:
+    if debug:
+        print()
+        for y, row in enumerate(grid):
+            print(f"{y:02}", "".join([str(x) for x in row]))
+
+
+def is_inbounds(data: list[str], node: tuple[int, int]) -> bool:
+    return 0 <= node[0] < len(data[0]) and 0 <= node[1] < len(data)
+
+
+def grid_to_int(data: list[str]) -> list[list[int]]:
+    grid = []
+    for row in data:
+        row = row.replace("#", "0")
+        row = row.replace(".", "1")
+        row = row.replace("S", "1")
+        row = row.replace("E", "1")
+        grid.append([int(x) for x in list(row)])
+
+    return grid
+
+
+def find_in_grid(grid: list[str], character: str) -> tuple[int, int]:
+    for y, row in enumerate(grid):
+        try:
+            x = row.index(character)
+        except ValueError:
+            x = -1
+
+        if x != -1:
+            return (x, y)
+
+    return (-1, -1)
+
+
+if __name__ == "__main__":
+    print("Test1a: ", run(part=1,debug=True))  # 7036
+    # print("Test1b: ", run(part=1, test_suffix="-test1b", debug=True))  # 11048
+    # print("Real1: ", run(part=1, debug=False))  # 111480
+
+    print("Test2a: ", run(part=2, debug=True))  # 45
+    # print("Test2b: ", run(part=2, test_suffix="-test1b", debug=True))  # 64
+    # print("Real2: ", run(part=2, debug=False))  # 529
