@@ -17,7 +17,8 @@ for line in lines:
 ans = 1
 y_s = 103 #7
 x_s = 101 #11
-for i in range(0, 100):
+for i in range(0, 45):
+
     for idy, book in enumerate(in_list):
         book[0] += book[2]
         book[0] %= x_s

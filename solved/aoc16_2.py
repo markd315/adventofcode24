@@ -12,7 +12,7 @@ TURN_DIRECTIONS = {
 
 
 def run(part: int, debug: bool = False):
-    file_name = f"input/16.txt"
+    file_name = f"../input/16.txt"
 
     with open(file_name, encoding="utf-8") as file:
         file_data = file.readlines()

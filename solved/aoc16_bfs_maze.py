@@ -16,7 +16,7 @@ SOUTH = EAST.rot()
 WEST = SOUTH.rot()
 modifications = [SOUTH,WEST,NORTH,EAST]
 
-with open("input/16.txt") as f:
+with open("../input/16.txt") as f:
     lines = f.readlines()
 # parse (two stage)
 in_list = []
