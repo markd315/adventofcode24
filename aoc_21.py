@@ -1,7 +1,6 @@
 import functools
 from collections import defaultdict
 
-
 def comparator(inp, two):
     if inp in map.keys():
         if two in map[inp]:
@@ -11,14 +10,13 @@ def comparator(inp, two):
             return 1
     return 0
 
-
 # initialize
 a = []
 b = []
-# read
-with open("input/19.txt") as f:
+#read
+with open("input/20.txt") as f:
     lines = f.readlines()
-# parse (two stage)
+#parse (two stage)
 stage_two_parse = False
 in_list = []
 map = defaultdict(list)
@@ -36,8 +34,9 @@ for line in lines:
         for n in line.strip().split(","):
             nums.append(int(n))
         in_list.append(nums)
-# process
-# answer
+#process
+#answer
 ans = 0
 sorted(in_list, key=functools.cmp_to_key(comparator), reverse=True)
 for book in in_list:
+    
