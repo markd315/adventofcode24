@@ -3,37 +3,13 @@ from collections import defaultdict
 import sys
 sys.setrecursionlimit(999999)
 
-def comparator(inp, two):
-    if inp in map.keys():
-        if two in map[inp]:
-            return -1
-    if two in map.keys():
-        if inp in map[two]:
-            return 1
-    return 0
-
-
-# initialize
-a = []
-b = []
 # read
 with open("../input/19.txt") as f:
-    lines = f.readlines()
-# parse (two stage)
-stage_two_parse = False
+    in_a, in_b = f.read().split("\n\n")
 in_list = []
 map = defaultdict(list)
-for line in lines:
-    if line.strip() == "":
-        stage_two_parse = True
-        continue
-    if not stage_two_parse:
-        x = line.strip().split(",")
-        for ax in x:
-            a.append(ax.strip())
-    else:
-        b.append(line.strip())
-# process
+a = in_a.split(", ")
+b = in_b.splitlines()
 # answer
 
 @functools.cache

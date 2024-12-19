@@ -1,5 +1,7 @@
 import functools
 from collections import defaultdict
+import sys
+sys.setrecursionlimit(999999)
 
 def comparator(inp, two):
     if inp in map.keys():
@@ -10,33 +12,29 @@ def comparator(inp, two):
             return 1
     return 0
 
-# initialize
-a = []
-b = []
-#read
+
+# read
 with open("input/X.txt") as f:
-    lines = f.readlines()
-#parse (two stage)
-stage_two_parse = False
+    in_a, in_b = f.read().split("\n\n")
 in_list = []
 map = defaultdict(list)
-for line in lines:
-    if line.strip() == "":
-        stage_two_parse = True
-        continue
-    if not stage_two_parse:
-        x = line.split("|")
-        a_x = int(x[0])
-        b_x = int(x[1].strip())
-        map[a_x].append(b_x)
+a = in_a.split(", ")
+b = in_b.splitlines()
+# process
+# answer
+
+@functools.cache
+def isInList(remainder):
+    if remainder == "":
+        return 1
     else:
-        nums = []
-        for n in line.strip().split(","):
-            nums.append(int(n))
-        in_list.append(nums)
-#process
-#answer
+        count = 0
+        for towel in a:
+            if remainder.startswith(towel):
+                count += isInList(remainder[len(towel):])
+        return count
+
 ans = 0
-sorted(in_list, key=functools.cmp_to_key(comparator), reverse=True)
-for book in in_list:
-    
+for book in b:
+    ans += isInList(book)
+print(ans)
