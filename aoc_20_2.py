@@ -122,22 +122,23 @@ cheats = set()
 cheats_len = 20
 for elem in visited:
     loc = elem
-    for d_s in modifications:
-        for opt in manhattan_set(elem + d_s, cheats_len - 2):
-            cheat = (elem + d_s, opt, manhattan_dist(elem + d_s, opt) + 1)
-            valid = True
-            for c in cheat[0:2]:
-                y, x = c
-                if range_violated(y, x):
-                    valid = False
-            if valid and in_list[y][x] != "#":
-                cheats.add(cheat)
-                if cheat[2] > 20:
-                    print("freeze")
+    for opt in manhattan_set(elem, cheats_len):
+        cheat = (elem, opt, manhattan_dist(elem, opt))
+        valid = True
+        for c in cheat[0:2]:
+            y, x = c
+            if range_violated(y, x):
+                valid = False
+        if valid and in_list[y][x] != "#":
+            cheats.add(cheat)
+            if cheat[2] > 20:
+                print("freeze")
 
 for cheat in cheats:
     saved = run_cheat(cheat, visited)
-    if saved >= 75:
+    if saved > 50 and saved % 2 != 0:
+        print("wut")
+    if saved >= 74:
         ans += 1
 #print(saved)
 print(ans)
