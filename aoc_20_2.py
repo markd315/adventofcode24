@@ -79,58 +79,65 @@ def run_maze(baseline=False):
         return scores, visited
 
 
-noop_mods = modifications
-modifications.append(T((0,0)))
 def run_cheat(cheat, visited):
-    hs = 0
-    if cheat[1] not in visited: # must escape on to open space
+    if cheat[0] not in visited or cheat[1] not in visited: # must escape on to open space
         return 0
-
-    for entry_dir in modifications:
-        entry_loc = cheat[0] + entry_dir
-        try:
-            in_loc = visited.index(entry_loc)
-            out_loc = visited.index(cheat[1])
-        except ValueError:
-            continue
-        if cheat[1] == T((e_y, e_x)):
-            test_score = len(visited) - in_loc - 3
-        else:
-            test_score = out_loc - in_loc - 2
-        if test_score > hs:
-            hs = test_score
-    return hs
+    entry_loc = cheat[0]
+    try:
+        in_loc = visited.index(entry_loc)
+        out_loc = visited.index(cheat[1])
+    except ValueError:
+        return 0
+    if cheat[1] == T((e_y, e_x)) and cheat[0] == T((r_y, r_x)):
+        return cheat[2]
+    if cheat[1] == T((e_y, e_x)):
+        return len(visited) - in_loc - cheat[2] - 1
+    if cheat[0] == T((r_y, r_x)):
+        return out_loc - 0 - cheat[2]
+    else:
+        return out_loc - in_loc - cheat[2]
 
 saved = {}
 scores, visited = run_maze(True)
 
 baseline = scores[T((e_y, e_x))]
 
-res = run_cheat((T((8, 8)), T((9, 8))), visited)
-res = run_cheat((T((7, 6)), T((7, 5))), visited)
+res = run_cheat((T((7, 8)), T((9, 8)), 2), visited)
+res = run_cheat((T((7, 7)), T((7, 5)), 2), visited)
+res = run_cheat((T((3, 1)), T((7, 3)), 6), visited)
 
+def manhattan_set(elem, dist):
+    ret = set()
+    for y in range(-dist, dist+1):
+        t = abs(y)
+        t = dist - t
+        for x in range(-t,t+1):
+            ret.add(elem + T((y, x)))
+    return ret
 
-cheats = []
-cheats_len = 2
+def manhattan_dist(one, two):
+    return abs(one[0] - two[0]) + abs(one[1] - two[1])
+
+cheats = set()
+cheats_len = 20
 for elem in visited:
+    loc = elem
     for d_s in modifications:
-        cheat = []
-        loc = elem
-        for i in range(0,cheats_len):
-            loc += d_s
-            cheat.append(loc)
-        cheat = tuple(cheat)
-        valid = True
-        for c in cheat:
-            y, x = c
-            if range_violated(y, x):
-                valid = False
-        if valid:
-            cheats.append(cheat)
+        for opt in manhattan_set(elem + d_s, cheats_len - 2):
+            cheat = (elem + d_s, opt, manhattan_dist(elem + d_s, opt) + 1)
+            valid = True
+            for c in cheat[0:2]:
+                y, x = c
+                if range_violated(y, x):
+                    valid = False
+            if valid and in_list[y][x] != "#":
+                cheats.add(cheat)
+                if cheat[2] > 20:
+                    print("freeze")
 
 for cheat in cheats:
     saved = run_cheat(cheat, visited)
-    if saved >= 100:
+    if saved >= 75:
         ans += 1
 #print(saved)
 print(ans)
