@@ -22,7 +22,7 @@ SOUTH = EAST.rot()
 WEST = SOUTH.rot()
 modifications = [SOUTH,WEST,NORTH,EAST]
 
-with open("input/20.txt") as f:
+with open("../input/20.txt") as f:
     lines = f.readlines()
 # parse (two stage)
 in_list = []
@@ -56,7 +56,7 @@ def run_maze(baseline=False):
     dir[T((r_y, r_x))] = EAST
     queue = collections.deque()
     queue.append(T((r_y, r_x)))
-    visited = []
+    visited = [T((r_y, r_x))]
     while len(queue) > 0:
         elem = queue.popleft()
         old_score = scores[elem]
@@ -78,33 +78,23 @@ def run_maze(baseline=False):
     if baseline:
         return scores, visited
 
+dist_map = defaultdict(lambda:-1)
 
-def run_cheat(cheat, visited):
-    if cheat[0] not in visited or cheat[1] not in visited: # must escape on to open space
+def run_cheat(cheat):
+    in_loc = dist_map[cheat[0]]
+    out_loc = dist_map[cheat[1]]
+    if in_loc == -1 or out_loc == -1:
         return 0
-    entry_loc = cheat[0]
-    try:
-        in_loc = visited.index(entry_loc)
-        out_loc = visited.index(cheat[1])
-    except ValueError:
-        return 0
-    if cheat[1] == T((e_y, e_x)) and cheat[0] == T((r_y, r_x)):
-        return cheat[2]
-    if cheat[1] == T((e_y, e_x)):
-        return len(visited) - in_loc - cheat[2] - 1
-    if cheat[0] == T((r_y, r_x)):
-        return out_loc - 0 - cheat[2]
-    else:
-        return out_loc - in_loc - cheat[2]
+    return out_loc - cheat[2] - in_loc
 
 saved = {}
 scores, visited = run_maze(True)
 
 baseline = scores[T((e_y, e_x))]
 
-res = run_cheat((T((7, 8)), T((9, 8)), 2), visited)
-res = run_cheat((T((7, 7)), T((7, 5)), 2), visited)
-res = run_cheat((T((3, 1)), T((7, 3)), 6), visited)
+#res = run_cheat((T((7, 8)), T((9, 8)), 2), visited)
+#res = run_cheat((T((7, 7)), T((7, 5)), 2), visited)
+#res = run_cheat((T((3, 1)), T((7, 3)), 6), visited)
 
 def manhattan_set(elem, dist):
     ret = set()
@@ -120,8 +110,9 @@ def manhattan_dist(one, two):
 
 cheats = set()
 cheats_len = 20
-for elem in visited:
+for dist, elem in enumerate(visited):
     loc = elem
+    dist_map[elem] = dist
     for opt in manhattan_set(elem, cheats_len):
         cheat = (elem, opt, manhattan_dist(elem, opt))
         valid = True
@@ -131,14 +122,13 @@ for elem in visited:
                 valid = False
         if valid and in_list[y][x] != "#":
             cheats.add(cheat)
-            if cheat[2] > 20:
+            if cheat[2] > cheats_len:
                 print("freeze")
 
+print(len(cheats))
 for cheat in cheats:
-    saved = run_cheat(cheat, visited)
-    if saved > 50 and saved % 2 != 0:
-        print("wut")
-    if saved >= 74:
+    saved = run_cheat(cheat)
+    if saved >= 100:
         ans += 1
 #print(saved)
 print(ans)
