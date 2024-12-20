@@ -40,14 +40,6 @@ for idy, line in enumerate(lines):
         if num == "E":
             e_y = idy
             e_x = idx
-        if num == "#":
-            for d in [SOUTH, EAST]:
-                loc = T((idy, idx))
-                nl =  loc + d
-                c1 = (nl, loc)
-                c2 = (loc, nl)
-                cheats.add(c1)
-                cheats.add(c2)
         vals.append(num)
     in_list.append(vals)
 # process
@@ -118,9 +110,27 @@ res = run_cheat((T((8, 8)), T((9, 8))), visited)
 res = run_cheat((T((7, 6)), T((7, 5))), visited)
 
 
+cheats = []
+cheats_len = 2
+for elem in visited:
+    for d_s in modifications:
+        cheat = []
+        loc = elem
+        for i in range(0,cheats_len):
+            loc += d_s
+            cheat.append(loc)
+        cheat = tuple(cheat)
+        valid = True
+        for c in cheat:
+            y, x = c
+            if range_violated(y, x):
+                valid = False
+        if valid:
+            cheats.append(cheat)
+
 for cheat in cheats:
     saved = run_cheat(cheat, visited)
-    if saved == 6:
+    if saved >= 100:
         ans += 1
 #print(saved)
 print(ans)

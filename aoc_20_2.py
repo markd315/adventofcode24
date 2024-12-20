@@ -26,36 +26,26 @@ with open("input/20.txt") as f:
     lines = f.readlines()
 # parse (two stage)
 in_list = []
-FIRST_N_LINES = 1024
+def range_violated(y, x):
+    return x >= x_len or y >= y_len or x < 0 or y < 0
 
 for idy, line in enumerate(lines):
     vals = []
     for idx, num in enumerate(line.strip()):
+        x_len = len(line.strip())
+        y_len = len(lines)
         if num == "S":
             r_y = idy
             r_x = idx
         if num == "E":
             e_y = idy
             e_x = idx
-        if num == "#":
-            for d in [SOUTH, EAST]:
-                loc = T((idy, idx))
-                nl =  loc + d
-                c1 = (nl, loc)
-                c2 = (loc, nl)
-                cheats.add(c1)
-                cheats.add(c2)
         vals.append(num)
-    x_len = len(line.strip())
-    y_len = len(lines)
     in_list.append(vals)
 # process
 # answer
 
 ans = 0
-
-def range_violated(y, x):
-    return x >= x_len or y >= y_len or x < 0 or y < 0
 
 def run_maze(baseline=False):
     scores = defaultdict(int)  # (y, x) -> int score
@@ -66,7 +56,7 @@ def run_maze(baseline=False):
     dir[T((r_y, r_x))] = EAST
     queue = collections.deque()
     queue.append(T((r_y, r_x)))
-    visited = set()
+    visited = []
     while len(queue) > 0:
         elem = queue.popleft()
         old_score = scores[elem]
@@ -84,40 +74,63 @@ def run_maze(baseline=False):
                     scores[T((y, x))] = score
                     dir[new_loc] = dirs
                     queue.append(new_loc)
-                    visited.add(T((y, x)))
+                    visited.append(T((y, x)))
     if baseline:
-        return scores
-    return scores[T((e_y, e_x))]
+        return scores, visited
 
-def run_cheat(cheat, scores):
-    ls = 99999999
+
+noop_mods = modifications
+modifications.append(T((0,0)))
+def run_cheat(cheat, visited):
+    hs = 0
+    if cheat[1] not in visited: # must escape on to open space
+        return 0
+
     for entry_dir in modifications:
         entry_loc = cheat[0] + entry_dir
-        y, x = entry_loc
-        if range_violated(y, x) or in_list[y][x] == "#":
+        try:
+            in_loc = visited.index(entry_loc)
+            out_loc = visited.index(cheat[1])
+        except ValueError:
             continue
-        for dir in modifications:
-            if dir == entry_dir: # no turning around
-                continue
-            exit_loc = cheat[1] + dir
-            y, x = exit_loc
-            if not range_violated(y, x) and in_list[y][x] != "#":
-                test_score = scores[entry_loc] + from_end[exit_loc] + 3
-                if test_score < ls:
-                    ls = test_score
-    return baseline - ls if ls != 99999999 else 0
+        if cheat[1] == T((e_y, e_x)):
+            test_score = len(visited) - in_loc - 3
+        else:
+            test_score = out_loc - in_loc - 2
+        if test_score > hs:
+            hs = test_score
+    return hs
 
 saved = {}
-scores = run_maze(True)
-#res = run_maze({T((8, 8)), T((9, 8))})
-#res = run_maze({T((7, 8)), T((7, 6))})
+scores, visited = run_maze(True)
+
 baseline = scores[T((e_y, e_x))]
 
-from_end = {}
-for k in scores.keys():
-    from_end[k] = baseline - scores[k]
+res = run_cheat((T((8, 8)), T((9, 8))), visited)
+res = run_cheat((T((7, 6)), T((7, 5))), visited)
+
+
+cheats = []
+cheats_len = 2
+for elem in visited:
+    for d_s in modifications:
+        cheat = []
+        loc = elem
+        for i in range(0,cheats_len):
+            loc += d_s
+            cheat.append(loc)
+        cheat = tuple(cheat)
+        valid = True
+        for c in cheat:
+            y, x = c
+            if range_violated(y, x):
+                valid = False
+        if valid:
+            cheats.append(cheat)
 
 for cheat in cheats:
-    ans += 1 if run_cheat(cheat, scores) >= 8 else 0
+    saved = run_cheat(cheat, visited)
+    if saved >= 100:
+        ans += 1
 #print(saved)
 print(ans)
