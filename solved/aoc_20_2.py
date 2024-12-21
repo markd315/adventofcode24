@@ -1,6 +1,6 @@
 import collections
-import functools
-import itertools
+import concurrent.futures
+import timeit
 from collections import defaultdict
 
 class T(tuple):
@@ -108,10 +108,8 @@ def manhattan_set(elem, dist):
 def manhattan_dist(one, two):
     return abs(one[0] - two[0]) + abs(one[1] - two[1])
 
-cheats = set()
-cheats_len = 20
-for dist, elem in enumerate(visited):
-    loc = elem
+
+def gen_cheats(elem, cheats_len):
     dist_map[elem] = dist
     for opt in manhattan_set(elem, cheats_len):
         cheat = (elem, opt, manhattan_dist(elem, opt))
@@ -124,6 +122,12 @@ for dist, elem in enumerate(visited):
             cheats.add(cheat)
             if cheat[2] > cheats_len:
                 print("freeze")
+
+cheats = set()
+cheats_len = 20
+with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    for dist, elem in enumerate(visited):
+        executor.submit(gen_cheats, elem, cheats_len)
 
 print(len(cheats))
 for cheat in cheats:

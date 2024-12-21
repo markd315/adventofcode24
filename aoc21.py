@@ -3,38 +3,114 @@ from collections import defaultdict
 import sys
 sys.setrecursionlimit(999999)
 
-def comparator(inp, two):
-    if inp in map.keys():
-        if two in map[inp]:
-            return -1
-    if two in map.keys():
-        if inp in map[two]:
-            return 1
-    return 0
+class T(tuple):
+    def __add__(self, other):
+        return T(x + y for x, y in zip(self, other))
+
+    def __sub__(self, other):
+        return T(x - y for x, y in zip(self, other))
+    def rot(self):
+        x, y = self
+        return T((y, -x))
+
+cheats = set()
+NORTH = T((-1, 0))
+EAST = NORTH.rot()
+SOUTH = EAST.rot()
+WEST = SOUTH.rot()
+modifications = [SOUTH,WEST,NORTH,EAST]
 
 
 # read
 with open("input/21.txt") as f:
-    in_a, in_b = f.read().split("\n\n")
-in_list = []
-map = defaultdict(list)
-a = in_a.split(", ")
-b = in_b.splitlines()
+    b = f.read().splitlines()
 # process
 # answer
 
-@functools.cache
-def isInList(remainder):
-    if remainder == "":
-        return 1
-    else:
-        count = 0
-        for towel in a:
-            if remainder.startswith(towel):
-                count += isInList(remainder[len(towel):])
-        return count
-
 ans = 0
+f_grid = [
+    ['7', '8', '9'],
+    ['4', '5', '6'],
+    ['1', '2', '3'],
+    ['e', '0', 'A'],
+]
+d_grid = [
+    ['e', 'u', 'a'],
+    ['l', 'd', 'r']
+]
+dgrid_orders = {
+    None: "rdlu",
+    T((0, 1)): "udlr",
+    T((0,2)): "urdl",
+    T((1,0)): "ldur",
+    T((1,1)): "dulr",
+    T((1,2)): "rdul",
+}
+
+def find_in_grid(grid, target):
+    for row_index, row in enumerate(grid):
+        if target in row:
+            col_index = row.index(target)
+            return T((row_index, col_index))
+
+def p_dir(dir1, in_cursor, next_cursor):
+    target = find_in_grid(d_grid, dir1)
+    diff = target - in_cursor
+    y, x = diff
+    order = dgrid_orders[next_cursor]
+    steps = resolve_ops(order, y, x)
+    steps.append('a')
+    return steps, target
+
+def resolve_ops(order, y, x):
+    steps = []
+    for elem in order:
+        while y > 0 and elem == "d":
+            steps.append("d")
+            y -= 1
+        while y < 0 and elem == "u":
+            steps.append("u")
+            y += 1
+        while x > 0 and elem == "r":
+            steps.append("r")
+            x -= 1
+        while x < 0 and elem == "l":
+            steps.append("l")
+            x += 1
+    return steps
+
+def p_num(numerical, n_cursor, next_cursor):
+    target = find_in_grid(f_grid, numerical)
+    diff =  target - n_cursor
+    y, x = diff
+    order = dgrid_orders[next_cursor]
+    steps = resolve_ops(order, y, x)
+    steps.append('a')
+    return steps, target
+
+def press(book, n_cursor, d1_cursor, d2_cursor):
+    count = 0
+    for numerical in book:
+        steps, n_cursor = p_num(numerical, n_cursor, d1_cursor)
+        for dir1 in steps:
+            steps2, d1_cursor = p_dir(dir1, d1_cursor, d2_cursor)
+            for dir2 in steps2:
+                steps3, d2_cursor = p_dir(dir2, d2_cursor, None)
+                #for dir3 in steps3:
+                    #steps4, d3_cursor = p_dir(dir3, d3_cursor, None)
+                count += len(steps3)
+    return count, n_cursor, d1_cursor, d2_cursor
+
+n_cursor = T((3, 2))
+d1_cursor = T((0, 2))
+d2_cursor = T((0, 2))
+d3_cursor = T((0, 2))
 for book in b:
-    ans += isInList(book)
+    book = book.strip()
+    c = int(book[0:3])
+    if book == "379A":
+        print("brk")
+    count, n_cursor, d1_cursor, d2_cursor = press(book, n_cursor, d1_cursor, d2_cursor)
+    complexity = c * count
+    ans += complexity
 print(ans)
