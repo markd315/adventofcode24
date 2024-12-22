@@ -38,50 +38,73 @@ d_grid = tuple([
     tuple(['e', 'u', 'a']),
     tuple(['l', 'd', 'r'])
 ])
-@cache
+
+dgrid_cache = defaultdict(lambda: None)
 def dgrid_orders(y, x, cy, cx, cursor_dest):
+    if dgrid_cache[(y, x, cy, cx, cursor_dest)]:
+        return dgrid_cache[(y, x, cy, cx, cursor_dest)]
     if cursor_dest in "udlra":
         if cursor_dest in "ua" and cy == 1 and cx == 0:
-            return "r" * x + "u" * (-y)
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "r" * x + "u" * (-y)
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
         if cursor_dest  == "l" and cy == 0 and cx > 0:
-            return "d" * y + "l" * (-x)
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "d" * y + "l" * (-x)
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
     else: # NCURSOR
         if cursor_dest in "741" and y < 0 and x < 0 and cy == 3:  # avoid blank spaces
-            return "u" * (-y) + "l" * (-x)
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "u" * (-y) + "l" * (-x)
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
         if cursor_dest  in "0A" and y > 0 and x > 0 and cx == 0:
-            return "r" * x + "d" * y
-    if y < 0 and x < 0: return "l" * (-x) + "u" * (-y) #prefer "<^" over "^<"
-    if y < 0 < x: return "u" * (-y) + "r" * x  #prefer "^>" over ">^"
-    if y > 0 > x: return "l" * (-x) + "d" * y  # prefer "<v" over "v<"
-    if y > 0 and x > 0: return "d" * y + "r" * x  # prefer "v>" over ">v"
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "r" * x + "d" * y
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
+    if y < 0 and x < 0:
+        dgrid_cache[(y, x, cy, cx, cursor_dest)] = "l" * (-x) + "u" * (-y) #prefer "<^" over "^<"
+        return dgrid_cache[(y, x, cy, cx, cursor_dest)]
+    if y < 0 < x:
+        dgrid_cache[(y, x, cy, cx, cursor_dest)] = "u" * (-y) + "r" * x  #prefer "^>" over ">^"
+        return dgrid_cache[(y, x, cy, cx, cursor_dest)]
+    if y > 0 > x:
+        dgrid_cache[(y, x, cy, cx, cursor_dest)] ="l" * (-x) + "d" * y  # prefer "<v" over "v<"
+        return dgrid_cache[(y, x, cy, cx, cursor_dest)]
+    if y > 0 and x > 0:
+        dgrid_cache[(y, x, cy, cx, cursor_dest)] = "d" * y + "r" * x  # prefer "v>" over ">v"
+        return dgrid_cache[(y, x, cy, cx, cursor_dest)]
     if x == 0:
         if y > 0:
-            return "d" * y
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "d" * y
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
         else:
-            return "u" * (-y)
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "u" * (-y)
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
     else: # y == 0
         if x > 0:
-            return "r" * x
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "r" * x
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
         else:
-            return "l" * (-x)
+            dgrid_cache[(y, x, cy, cx, cursor_dest)] = "l" * (-x)
+            return dgrid_cache[(y, x, cy, cx, cursor_dest)]
 
-@cache
+grid_cache = defaultdict(lambda: None)
 def find_in_grid(grid, target):
+    if grid_cache[(grid, target)] is not None:
+        return grid_cache[grid, target]
     for row_index, row in enumerate(grid):
         if target in row:
             col_index = row.index(target)
-            return T((row_index, col_index))
+            grid_cache[grid, target] = T((row_index, col_index))
+            return grid_cache[grid, target]
 
-@cache
+pdir_cache = defaultdict(lambda: None)
 def p_dir(cursor_target, cy, cx):
     target = find_in_grid(d_grid, cursor_target)
     diff = target - T((cy, cx))
     y, x = diff
     steps = list(dgrid_orders(y, x, cy, cx, cursor_target))
     steps.append('a')
-    return steps, target
+    pdir_cache[(cursor_target, cy, cx)] = (steps, target)
+    return pdir_cache[(cursor_target, cy, cx)]
 
-@cache
+
 def p_num(numerical, n_cursor):
     target = find_in_grid(f_grid, numerical)
     diff =  target - n_cursor
