@@ -39,6 +39,37 @@ d_grid = tuple([
     tuple(['l', 'd', 'r'])
 ])
 
+state_transitions = {
+    "a": [],
+    "ll": [],
+    "rr": [],
+    "dd": [],
+    "uu": [],
+    "aa": [],
+    "al": ["ar", "rd", "dl"], #(a) dlla
+    "ar": ["ar"],
+    "au": ["au"],
+    "ad": ["au", "ud"],
+    "dr": ["dr"],
+    "dl": ["dl"],
+    "da": ["du", "ua"],
+    "ra": ["ra"],
+    "rd": ["rd"],
+    "ru": ["rd", "du"],
+    "la": ["ld", "dr", "ra"],
+    "ld": ["ld"],
+    "lu": ["ld", "du"],
+    "ua": ["ua"],
+    "ul": ["ud", "dl"],
+    "ur": ["ud", "dr"],
+    "du": ["du"],
+    "ud": ["ud"],
+    "lr": ["ld", "dr"],
+    "rl": ["rd", "dl"],
+}
+
+trx_count = defaultdict(lambda:0)
+
 dgrid_cache = defaultdict(lambda: None)
 def dgrid_orders(y, x, cy, cx, cursor_dest):
     if dgrid_cache[(y, x, cy, cx, cursor_dest)]:
@@ -120,14 +151,31 @@ def press(book):
         cursors = defaultdict(lambda: T((0, 2)))
         steps, n_cursor = p_num(numerical, n_cursor)
         steps_next = None
-        for i in range(0,25):
+        for i in range(0,1):
             if steps_next is not None:
                 steps = steps_next
             steps_next = []
             for dir1 in steps:
                 steps, cursors[i] = p_dir(dir1, cursors[i][0], cursors[i][1])
                 steps_next.extend(steps)
-        count += len(steps_next)
+        all_steps = ['a']
+        all_steps.extend(steps_next) # start at a
+        trx_count = defaultdict(lambda: 0)
+        for idx, elem in enumerate(all_steps[0:-1]):
+            joined = elem + all_steps[idx+1]
+            trx_count[joined] += 1
+        for i in range(0,1): # Switch to memo solution
+            next_trx_count = defaultdict(lambda: 0)
+            a_presses = sum(trx_count.values())
+            trx_count['a'] = a_presses
+            for k, cnt in trx_count.items():
+                trans = state_transitions[k]
+                #trans.append("a")
+                for elem in trans:
+                    next_trx_count[elem] += cnt
+            trx_count = next_trx_count
+        for k, v in trx_count.items():
+            count += v
     return count
 
 for book in b:
