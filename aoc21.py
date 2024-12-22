@@ -38,14 +38,32 @@ d_grid = [
     ['e', 'u', 'a'],
     ['l', 'd', 'r']
 ]
-dgrid_orders = {
-    None: "rdlu",
-    T((0, 1)): "udlr",
-    T((0,2)): "urdl",
-    T((1,0)): "ldur",
-    T((1,1)): "dulr",
-    T((1,2)): "rdul",
-}
+def dgrid_orders(y, x, cursor, cursor_dest):
+    if cursor_dest in "udlra":
+        if cursor_dest in "ua" and cursor == T((1, 0)):
+            return "r" * x + "u" * (-y)
+        if cursor_dest  == "l" and cursor in [T((0, 1)), T((0, 2))]:
+            return "d" * y + "l" * (-x)
+    else: # NCURSOR
+        cursor_y, cursor_x = cursor
+        if cursor_dest in "741" and y < 0 and x < 0 and cursor_y == 3:  # avoid blank spaces
+            return "u" * (-y) + "l" * (-x)
+        if cursor_dest  in "0A" and y > 0 and x > 0 and cursor_x == 0:
+            return "r" * x + "d" * y
+    if y < 0 and x < 0: return "l" * (-x) + "u" * (-y) #prefer "<^" over "^<"
+    if y < 0 < x: return "u" * (-y) + "r" * x  #prefer "^>" over ">^"
+    if y > 0 > x: return "l" * (-x) + "d" * y  # prefer "<v" over "v<"
+    if y > 0 and x > 0: return "d" * y + "r" * x  # prefer "v>" over ">v"
+    if x == 0:
+        if y > 0:
+            return "d" * y
+        else:
+            return "u" * (-y)
+    else: # y == 0
+        if x > 0:
+            return "r" * x
+        else:
+            return "l" * (-x)
 
 def find_in_grid(grid, target):
     for row_index, row in enumerate(grid):
@@ -53,64 +71,45 @@ def find_in_grid(grid, target):
             col_index = row.index(target)
             return T((row_index, col_index))
 
-def p_dir(dir1, in_cursor, next_cursor):
-    target = find_in_grid(d_grid, dir1)
+def p_dir(cursor_target, in_cursor):
+    target = find_in_grid(d_grid, cursor_target)
     diff = target - in_cursor
     y, x = diff
-    order = dgrid_orders[next_cursor]
-    steps = resolve_ops(order, y, x)
-    steps.append('a')
+    steps = dgrid_orders(y, x, in_cursor, cursor_target)
+    steps += 'a'
     return steps, target
 
-def resolve_ops(order, y, x):
-    steps = []
-    for elem in order:
-        while y > 0 and elem == "d":
-            steps.append("d")
-            y -= 1
-        while y < 0 and elem == "u":
-            steps.append("u")
-            y += 1
-        while x > 0 and elem == "r":
-            steps.append("r")
-            x -= 1
-        while x < 0 and elem == "l":
-            steps.append("l")
-            x += 1
-    return steps
-
-def p_num(numerical, n_cursor, next_cursor):
+def p_num(numerical, n_cursor):
     target = find_in_grid(f_grid, numerical)
     diff =  target - n_cursor
     y, x = diff
-    order = dgrid_orders[next_cursor]
-    steps = resolve_ops(order, y, x)
-    steps.append('a')
+    steps = dgrid_orders(y, x, n_cursor, numerical)
+    steps += 'a'
     return steps, target
 
-def press(book, n_cursor, d1_cursor, d2_cursor):
+def press(book, n_cursor):
     count = 0
     for numerical in book:
-        steps, n_cursor = p_num(numerical, n_cursor, d1_cursor)
-        for dir1 in steps:
-            steps2, d1_cursor = p_dir(dir1, d1_cursor, d2_cursor)
-            for dir2 in steps2:
-                steps3, d2_cursor = p_dir(dir2, d2_cursor, None)
-                #for dir3 in steps3:
-                    #steps4, d3_cursor = p_dir(dir3, d3_cursor, None)
-                count += len(steps3)
-    return count, n_cursor, d1_cursor, d2_cursor
+        steps, n_cursor = p_num(numerical, n_cursor)
+        steps_next = None
+        for i in range(0,2):
+            if steps_next is not None:
+                steps = steps_next
+            steps_next = ""
+            for dir1 in steps:
+                steps, cursors[i] = p_dir(dir1, cursors[i])
+                steps_next += steps
+        count += len(steps_next)
+    return count
 
 n_cursor = T((3, 2))
-d1_cursor = T((0, 2))
-d2_cursor = T((0, 2))
-d3_cursor = T((0, 2))
+cursors = defaultdict(lambda: T((0, 2)))
 for book in b:
     book = book.strip()
     c = int(book[0:3])
-    if book == "379A":
-        print("brk")
-    count, n_cursor, d1_cursor, d2_cursor = press(book, n_cursor, d1_cursor, d2_cursor)
+    if c == 379:
+        print('brk')
+    count = press(book, n_cursor)
     complexity = c * count
     ans += complexity
 print(ans)
