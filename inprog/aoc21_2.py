@@ -22,7 +22,7 @@ modifications = [SOUTH,WEST,NORTH,EAST]
 
 
 # read
-with open("input/21.txt") as f:
+with open("../input/21.txt") as f:
     b = f.read().splitlines()
 # process
 # answer
@@ -164,19 +164,18 @@ def press(book):
         for idx, elem in enumerate(all_steps[0:-1]):
             joined = elem + all_steps[idx+1]
             trx_count[joined] += 1
-        for i in range(0,1): # Switch to memo solution
+        for i in range(0,3): # Switch to memo solution
             next_trx_count = defaultdict(lambda: 0)
-            a_presses = sum(trx_count.values())
-            trx_count['a'] = a_presses
             for k, cnt in trx_count.items():
                 trans = state_transitions[k]
                 #trans.append("a")
                 for elem in trans:
                     next_trx_count[elem] += cnt
+            #a_presses = sum(next_trx_count.values())
+            #next_trx_count['a'] = a_presses
             trx_count = next_trx_count
-        for k, v in trx_count.items():
-            count += v
-    return count
+        trx_count['a'] = sum(trx_count.values())
+        return trx_count['a']
 
 for book in b:
     book = book.strip()

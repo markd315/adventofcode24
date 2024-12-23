@@ -22,7 +22,7 @@ modifications = [SOUTH,WEST,NORTH,EAST]
 
 
 # read
-with open("input/21.txt") as f:
+with open("../input/21.txt") as f:
     b = f.read().splitlines()
 # process
 # answer
