@@ -7,7 +7,7 @@ def mix(i, j):
    return i ^ j
 
 # read
-with open("input/22.txt") as f:
+with open("../input/22.txt") as f:
     in_a = f.read()
 in_list = []
 map = defaultdict(list)

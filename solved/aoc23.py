@@ -4,7 +4,7 @@ import sys
 sys.setrecursionlimit(999999)
 
 # read
-with open("input/23.txt") as f:
+with open("../input/23.txt") as f:
     in_a =  f.read().splitlines()
 map = defaultdict(list)
 # process
