@@ -11,7 +11,6 @@ map = defaultdict(list)
 # answer
 
 ans = 0
-sets = set()
 for book in in_a:
     tmp = book.split("-")
     a = tmp[0].strip()
@@ -19,12 +18,11 @@ for book in in_a:
     map[a].append(b)
     map[b].append(a)
 
-#todo all connected to EACH OTHER
+def dfs(node, dest, map, ):
 
-size = 0
-arr = []
-for elem in map.values():
-    if len(elem) > size:
-        arr = elem
-        size = len(elem)
-print(",".join(sorted(arr)))
+
+in_connected = defaultdict(lambda: False)
+max_graph = list()
+for key in map.keys():
+    connect
+print(ans)
