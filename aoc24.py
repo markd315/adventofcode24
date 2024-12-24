@@ -89,6 +89,15 @@ print("{0:b}".format(val))
 # these bits flip in the output
 # + pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
 # z06, z05, z11, z24, z45 all INDEPENDENT
+
+# the theory for half and full adders is pretty simple.
+# half adder
+# z[0] = x[0] XOR y[0]
+
+# full adder from two half adders (probably why we have ORs)
+# z[0] = x[0] XOR y[0] XOR cin
+# cout[0] = [(x[0] XOR y[0]) AND cin] OR (x[0] AND y[0])
+
 """
 x05 XOR y05 -> qfs
 qfs XOR whh -> bpf
