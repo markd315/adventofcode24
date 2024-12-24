@@ -18,7 +18,7 @@ b = in_b.splitlines()
 # shifted inputs:
 # ANSWER: z35, fdw, z05, bpf, qcw, hqc, [], []
 # ALREADY CHANGED THESE in the input to simplify the rest
-answer = "z35, fdw, z05, bpf, qcw, hqc"
+answer = "z35, fdw, z05, bpf, qcw, hqc, hcc, z11"
 # z11 has an issue still
 answers = answer.split(", ")
 answers.sort()
@@ -37,9 +37,21 @@ rcr OR fkc -> whh # cout
 
 vpn XOR wjg -> z04 # is final sum, looks correct
 """
+# still debug bit 11
+"""
+cin CJH = cjv OR rck -> cjh
+x11 XOR y11 -> cgn # tsum
+x11 AND y11 -> spp # tcar1
+
+cjh AND cgn -> skn # tcar2
+cgn XOR cjh -> hcc # COUT but should be SUM
+
+skn OR spp -> z11 # SUM but should be C-OUT
+"""
+
+
 # still debug bit 5
 """
-FUNCTIONAL ADDER
 cin
 x05 XOR y05 -> qfs # tsum
 y05 AND x05 -> qjc # tcar1
