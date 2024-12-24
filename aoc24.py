@@ -38,7 +38,7 @@ for i in range(313):
         vals = parse("{0} {1} {2} -> {3}", b_x.strip())
         for val in vals.fixed:
             nums.append(val)
-        if nums[0] in defined and nums[2] in defined:
+        if nums[3] not in defined and nums[0] in defined and nums[2] in defined:
             if nums[1] == "XOR":
                 defined[nums[3]] = defined[nums[0]] ^ defined[nums[2]]
             if nums[1] == "OR":
@@ -55,3 +55,36 @@ for i in range(0,46)[::-1]:
     else:
         ans += str(defined["z" + str(i)])
 print(ans)
+
+ans = ""
+for i in range(0,44)[::-1]:
+    if i < 10:
+        ans += str(defined["x0" + str(i)])
+    else:
+        ans += str(defined["x" + str(i)])
+print("  " + ans)
+
+ans = ""
+for i in range(0,44)[::-1]:
+    if i < 10:
+        ans += str(defined["y0" + str(i)])
+    else:
+        ans += str(defined["y" + str(i)])
+print("  " + ans)
+
+val = 58367545758258 - 7300390135833 - 15882766754361 - pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
+print("{0:b}".format(val))
+# correct parts
+# !01000111001 in y
+# y11 wrong needs to be true
+# 58367545758258 = 7300390135833 + 15882766754361
+
+# z45 wrong needs to be false
+# z5 wrong needs to be true
+# z26 is wrong needs to be true
+
+# resultant is
+# !111111111111111111100000
+
+# these bits flip in the output
+# + pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
