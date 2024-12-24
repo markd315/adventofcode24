@@ -15,67 +15,69 @@ b = in_b.splitlines()
 # process
 # answer
 
-defined = {}
-xin = 7
 # todo this isnt working but we can use it to test addition fixes we make
-for i in range(0,10):
-    tmp = xin % pow(2,i+1)
-    defined["x0" + str(i)] = tmp
-    xin = int(xin / 2)
-for i in range(10,44):
-    tmp = xin % pow(2, i)
-    defined["x" + str(i)] = tmp
-    xin = int(xin / 2)
 
-yin = 7
-for i in range(0,10):
-    tmp = yin % pow(2,i)
-    defined["y0" + str(i)] = tmp
-    xin = int(xin / 2)
-for i in range(10,44):
-    tmp = yin % pow(2, i)
-    defined["y" + str(i)] = tmp
-    xin = int(xin / 2)
-
-for i in range(313):
-    for b_x in b:
-        nums = []
-        vals = parse("{0} {1} {2} -> {3}", b_x.strip())
-        for val in vals.fixed:
-            nums.append(val)
-        if nums[3] not in defined and nums[0] in defined and nums[2] in defined:
-            if nums[1] == "XOR":
-                defined[nums[3]] = defined[nums[0]] ^ defined[nums[2]]
-            if nums[1] == "OR":
-                defined[nums[3]] = defined[nums[0]] | defined[nums[2]]
-            if nums[1] == "AND":
-                defined[nums[3]] = defined[nums[0]] & defined[nums[2]]
+for j in range(0,44):
+    print("ones bit " + str(j))
+    defined = {}
+    for i in range(0,44):
+        if i == j:
+            if i < 10:
+                defined["x0" + str(i)] = 1
+                defined["y0" + str(i)] = 1
+            else:
+                defined["x" + str(i)] = 1
+                defined["y" + str(i)] = 1
+        elif i < 10:
+            defined["x0" + str(i)] = 0
+            defined["y0" + str(i)] = 0
+        else:
+            defined["x" + str(i)] = 0
+            defined["y" + str(i)] = 0
 
 
+    for i in range(400):
+        for b_x in b:
+            nums = []
+            vals = parse("{0} {1} {2} -> {3}", b_x.strip())
+            for val in vals.fixed:
+                nums.append(val)
+            if nums[3] not in defined and nums[0] in defined and nums[2] in defined:
+                if nums[1] == "XOR":
+                    defined[nums[3]] = defined[nums[0]] ^ defined[nums[2]]
+                if nums[1] == "OR":
+                    defined[nums[3]] = defined[nums[0]] | defined[nums[2]]
+                if nums[1] == "AND":
+                    defined[nums[3]] = defined[nums[0]] & defined[nums[2]]
 
-ans = ""
-for i in range(0,46)[::-1]:
-    if i < 10:
-        ans += str(defined["z0" + str(i)])
-    else:
-        ans += str(defined["z" + str(i)])
-print(ans)
 
-ans = ""
-for i in range(0,44)[::-1]:
-    if i < 10:
-        ans += str(defined["x0" + str(i)])
-    else:
-        ans += str(defined["x" + str(i)])
-print("  " + ans)
 
-ans = ""
-for i in range(0,44)[::-1]:
-    if i < 10:
-        ans += str(defined["y0" + str(i)])
-    else:
-        ans += str(defined["y" + str(i)])
-print("  " + ans)
+    ans = ""
+    for i in range(0,46)[::-1]:
+        try:
+            if i < 10:
+                ans += str(defined["z0" + str(i)])
+            else:
+                ans += str(defined["z" + str(i)])
+        except BaseException:
+            op = ans
+    print(ans)
+
+    ans = ""
+    for i in range(0,44)[::-1]:
+        if i < 10:
+            ans += str(defined["x0" + str(i)])
+        else:
+            ans += str(defined["x" + str(i)])
+    print(ans)
+
+    ans = ""
+    for i in range(0,44)[::-1]:
+        if i < 10:
+            ans += str(defined["y0" + str(i)])
+        else:
+            ans += str(defined["y" + str(i)])
+    print(ans)
 
 val = 58367545758258 - 7300390135833 - 15882766754361 - pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
 print("{0:b}".format(val))
