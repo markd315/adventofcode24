@@ -16,16 +16,56 @@ b = in_b.splitlines()
 # answer
 
 # shifted inputs:
-# ANSWER: rck, spp, z35, fdw
-# ALREADY CHANGED THESE to simplify the rest
-# for 24 and 11, the carry output is the sum output WRONG
-# x24 AND y24 -> hqc
-# y24 XOR x24 -> qcw
+# ANSWER: z35, fdw, z05, bpf, qcw, hqc, [], []
+# ALREADY CHANGED THESE in the input to simplify the rest
+answer = "z35, fdw, z05, bpf, qcw, hqc"
+# z11 has an issue still
+answers = answer.split(", ")
+answers.sort()
+print(",".join(answers))
 
 
-# for 10-11 and 34-35 the carry output goes to n+1
-# y10 AND x10 -> rck
-# x11 AND y11 -> spp
+
+"""
+FUNCTIONAL ADDER CHUNK EXAMPLE
+bqg OR hwj -> wjg 3 cin
+x04 XOR y04 -> vpn # tsum
+x04 AND y04 -> fkc # tcar1
+
+vpn AND wjg -> rcr # tcar2
+rcr OR fkc -> whh # cout
+
+vpn XOR wjg -> z04 # is final sum, looks correct
+"""
+# still debug bit 5
+"""
+FUNCTIONAL ADDER
+cin
+x05 XOR y05 -> qfs # tsum
+y05 AND x05 -> qjc # tcar1
+
+qfs AND whh -> z05 # tcar2 should be SUM
+qfs XOR whh -> bpf # SUM should be tcar2
+
+vpn XOR wjg -> z04 # is final sum, looks correct
+"""
+
+
+
+# still debug bit 24
+"""
+gmr needs to be the cin bit
+
+y24 XOR x24 -> qcw # tcar1 needs to be TSUM
+x24 AND y24 -> hqc # tsum needs to be TCAR1
+
+gmr AND hqc -> chn # tcar2
+qfs XOR whh -> bpf # SUM should be tcar2
+
+
+gmr XOR hqc -> z24 # is final sum, looks correct
+chn OR qcw -> dfm # cout
+"""
 
 # dsb OR rnr -> tgs # cin
 # khk XOR tgs -> fdw
@@ -37,10 +77,10 @@ b = in_b.splitlines()
 
 # for 4 the carry output goes to n+1, not sure what it is switched with
 
-for j in range(0,44):
+for j in range(0,45):
     print("ones bit " + str(j))
     defined = {}
-    for i in range(0,44):
+    for i in range(0,45):
         if i == j:
             if i < 10:
                 defined["x0" + str(i)] = 1
@@ -49,10 +89,10 @@ for j in range(0,44):
                 defined["x" + str(i)] = 1
                 defined["y" + str(i)] = 1
         elif i < 10:
-            defined["x0" + str(i)] = 0
+            defined["x0" + str(i)] = 1
             defined["y0" + str(i)] = 0
         else:
-            defined["x" + str(i)] = 0
+            defined["x" + str(i)] = 1
             defined["y" + str(i)] = 0
 
 
@@ -84,20 +124,20 @@ for j in range(0,44):
     print(ans)
 
     ans = ""
-    for i in range(0,44)[::-1]:
+    for i in range(0,45)[::-1]:
         if i < 10:
             ans += str(defined["x0" + str(i)])
         else:
             ans += str(defined["x" + str(i)])
-    print(ans)
+    print(" " + ans)
 
     ans = ""
-    for i in range(0,44)[::-1]:
+    for i in range(0,45)[::-1]:
         if i < 10:
             ans += str(defined["y0" + str(i)])
         else:
             ans += str(defined["y" + str(i)])
-    print(ans)
+    print(" " + ans)
 
 val = 58367545758258 - 7300390135833 - 15882766754361 - pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
 print("{0:b}".format(val))
