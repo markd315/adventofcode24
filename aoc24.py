@@ -98,6 +98,11 @@ print("{0:b}".format(val))
 # z[0] = x[0] XOR y[0] XOR cin
 # cout[0] = [(x[0] XOR y[0]) AND cin] OR (x[0] AND y[0])
 
+#89 ANDs
+#89 XORs
+#44 ORs
+
+# so this all feels very likely to be an exact solution, maybe with 1-2 wires that are constants or distractors
 """
 x05 XOR y05 -> qfs
 qfs XOR whh -> bpf
