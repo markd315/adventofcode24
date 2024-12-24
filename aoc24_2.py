@@ -15,7 +15,27 @@ b = in_b.splitlines()
 # process
 # answer
 
-# todo this isnt working but we can use it to test addition fixes we make
+# shifted inputs:
+# ANSWER: rck, spp, z35, fdw
+# ALREADY CHANGED THESE to simplify the rest
+# for 24 and 11, the carry output is the sum output WRONG
+# x24 AND y24 -> hqc
+# y24 XOR x24 -> qcw
+
+
+# for 10-11 and 34-35 the carry output goes to n+1
+# y10 AND x10 -> rck
+# x11 AND y11 -> spp
+
+# dsb OR rnr -> tgs # cin
+# khk XOR tgs -> fdw
+# y35 XOR x35 -> khk # tsum
+# tgs AND khk -> chc # cin AND tsum = tcar2
+# fdw OR chc -> tht # cout
+# x35 AND y35 -> z35 # tcar1
+# switch z35 (tcar1) with fdw (final sum)
+
+# for 4 the carry output goes to n+1, not sure what it is switched with
 
 for j in range(0,44):
     print("ones bit " + str(j))
