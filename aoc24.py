@@ -88,3 +88,26 @@ print("{0:b}".format(val))
 
 # these bits flip in the output
 # + pow(2,11) - pow(2,45) - pow(2,5) + pow(2,6) - pow(2,24)
+# z06, z05, z11, z24, z45 all INDEPENDENT
+"""
+x05 XOR y05 -> qfs
+qfs XOR whh -> bpf
+qfs AND whh -> z05
+
+y05 AND x05 -> qjc
+x04 XOR y04 -> vpn
+vpn AND wjg -> rcr
+vpn XOR wjg -> z04 # z04 is right, making both of these wrong?
+x04 AND y04 -> fkc
+rcr OR fkc -> whh
+qfs XOR whh -> bpf
+vgg AND fgw -> csf
+bpf OR qjc -> fgw
+fgw XOR vgg -> z06
+
+TODO
+skn OR spp -> z11
+gmr XOR hqc -> z24
+svd OR nfd -> z45
+
+"""
