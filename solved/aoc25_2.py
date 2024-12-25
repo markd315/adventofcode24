@@ -14,7 +14,7 @@ def comparator(inp, two):
 
 
 # read
-with open("input/25.txt") as f:
+with open("../input/25.txt") as f:
     in_a, in_b = f.read().split("\n\n")
 in_list = []
 map = defaultdict(list)
